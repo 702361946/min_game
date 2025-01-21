@@ -1,3 +1,8 @@
+#  Copyright (c) 2025.
+#  GNU AFFERO GENERAL PUBLIC LICENSE v3
+#  702361946@qq.com
+#  https://github.com/702361946/min_game
+
 # Password Cracking Game
 import json
 import os
@@ -5,10 +10,54 @@ import random
 from datetime import datetime
 
 config = {
-    "allow_duplicate": True,  # 允许重复
+    "allow_duplicate": False,  # 允许重复
     "len": 4,  # 生成长度
     "step_limit": 0,  # 步数限制
     "place_tips": True,  # 位置提示
+    "key_embrace": {  # 包含字符
+        'int': {
+            'state': True,
+            '0': True,
+            '1': True,
+            '2': True,
+            '3': True,
+            '4': True,
+            '5': True,
+            '6': True,
+            '7': True,
+            '8': True,
+            '9': True
+        },
+        'english_letters': {
+            'state': True,
+            'a': True,
+            'b': True,
+            'c': True,
+            'd': True,
+            'e': True,
+            'f': True,
+            'g': True,
+            'h': True,
+            'i': True,
+            'j': True,
+            'k': True,
+            'l': True,
+            'm': True,
+            'n': True,
+            'o': True,
+            'p': True,
+            'q': True,
+            'r': True,
+            's': True,
+            't': True,
+            'u': True,
+            'v': True,
+            'w': True,
+            'x': True,
+            'y': True,
+            'z': True
+        }
+    },
 }
 
 # 文件配置读取
@@ -62,7 +111,7 @@ def setting():
                         new_value = new_value
 
                     case _:
-                        print('未知类型,请直接修改配置文件')
+                        print('不支持的类型,请直接修改配置文件')
 
                 config[_t] = new_value
                 print(f'已更新 {_t} 的值为: {new_value}')
@@ -90,7 +139,6 @@ def setting():
 def game():
     def build() -> dict[list[int | list]]:
         """
-
         :return: 返回的字典中,"key"是密钥,“user_input_time”用于记录每次用户输入的
         """
         if config['allow_duplicate'] is False and config['len'] > 10:
@@ -101,11 +149,27 @@ def game():
             "user_input_time": [],
             "step": 0,
         }
+
+        # 生成密钥包含字符
+        if True:
+            key = []
+            for _k in config['key_embrace'].keys():
+                if type(config['key_embrace'][_k]).__name__ == 'dict':
+                    if config['key_embrace'][_k]['state'] is True:
+                        print(f'加载字符集{_k}')
+                        for __k in config['key_embrace'][_k].keys():
+                            if config['key_embrace'][_k][__k] is True:
+                                key.append(__k)
+            if not key:
+                raise ValueError('无可用字符\n请检查key_embrace下的所有子项的状态')
+
         while len(_game_values['key']) < config['len']:
-            _t = str(random.randint(0, 9))
+            _t = key[random.randint(0, len(key) - 1)]
             if config['allow_duplicate'] is False:
                 if _t in _game_values['key']:
                     continue
+                else:
+                    _game_values['key'].append(_t)
             else:
                 _game_values['key'].append(_t)
         return _game_values
@@ -117,15 +181,15 @@ def game():
         else:
             __t = []
             _win = 0
-            for _i in range(config['len']):
+            for __i in range(config['len']):
                 # T(True)对,F(False)错,I(in)存在
-                if _t[_i] == game_values['key'][_i]:
-                    __t.append(f'T{_t[_i]}')
+                if _t[__i] == game_values['key'][__i]:
+                    __t.append(f'T{_t[__i]}')
                     _win += 1
-                elif config['place_tips'] is True and _t[_i] in game_values['key']:
-                    __t.append(f'I{_t[_i]}')
+                elif config['place_tips'] is True and _t[__i] in game_values['key']:
+                    __t.append(f'I{_t[__i]}')
                 else:
-                    __t.append(f'F{_t[_i]}')
+                    __t.append(f'F{_t[__i]}')
             print(__t)
             game_values['user_input_time'].append(__t)
             if _win == config['len']:
